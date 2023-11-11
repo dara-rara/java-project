@@ -7,6 +7,7 @@ public class Main {
         parser.createMapSeminar();
         parser.createMapExercisesAndHomeworks();
         var students = parser.createStudentStorage();
-
+        var student = students.getStudent("Новикова Мария");
+        System.out.println(student.toString());
     }
 }
