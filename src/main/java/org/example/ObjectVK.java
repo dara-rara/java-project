@@ -24,15 +24,8 @@ public class ObjectVK {
     public ObjectVK() {
         var configuration = new Configuration();
         var configData = configuration.getConfigData();
-        String data = "";
-        for (var config : configData) {
-            for (var value : config) {
-                data += " " + value;
-            }
-        }
-        var result = data.split(" ");
-        APP_ID = Long.parseLong(result[1]);
-        CODE = result[3];
+        APP_ID = Long.parseLong(configData.get(0)[0]);
+        CODE = configData.get(1)[0];
         TransportClient transportClient = new HttpTransportClient();
         vk = new VkApiClient(transportClient);
         actor = new UserActor(APP_ID, CODE);
