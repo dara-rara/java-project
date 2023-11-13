@@ -34,7 +34,7 @@ public class Student {
     @Override
     public String toString() {
         var builder = new StringBuilder();
-        builder.append("\n\n" + name + " - " + group + " - " + city + "\n");
+        builder.append("\n\n" + name + " - " + group + " - " + city + "\n\n");
         for (var theme : themes.values())
             builder.append(theme.toString());
         return builder.toString();
