@@ -45,13 +45,13 @@ public class Theme {
     @Override
     public String toString() {
         var builder = new StringBuilder();
-        builder.append("\n" + nameTheme + "\n");
+        builder.append(nameTheme + "\n");
         for (var exercise : exercises.entrySet())
             builder.append(exercise.getKey() + "-" + exercise.getValue() + ";");
         for (var homework : homeworks.entrySet())
-            builder.append(homework.getKey() + "-" + homework.getValue() + ";");
+            builder.append(homework.getKey() + "-" + homework.getValue() + "; ");
         builder.append("\nАкт - " + activities + ";");
-        builder.append("\nСем - " + seminars + ";");
+        builder.append("\nСем - " + seminars + ";\n");
         return builder.toString();
     }
 }

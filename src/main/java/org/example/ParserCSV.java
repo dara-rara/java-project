@@ -4,8 +4,11 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
-import com.opencsv.exceptions.CsvException;
-import java.io.*;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,6 +18,7 @@ public class ParserCSV {
     private HashMap<String, Integer> mapSeminar;
     private HashMap<String, HashMap<String, Integer>> mapExercises;
     private HashMap<String, HashMap<String, Integer>> mapHomeworks;
+
 
     public void readFile(String file) {
         CSVParser csvParser = new CSVParserBuilder().withSeparator(';').build();
@@ -35,7 +39,7 @@ public class ParserCSV {
         var firstLine = table.get(0);
         mapTheme = new HashMap<>();
         for (var i = 8; i < firstLine.length; i++) {
-            if (firstLine[i] != null && firstLine[i] != "") {
+            if (firstLine[i] != null && !firstLine[i].equals("")) {
                 mapTheme.put(firstLine[i], i);
             }
         }
@@ -77,8 +81,12 @@ public class ParserCSV {
         }
     }
 
-    public Student createStudent(String[] data) {
-        var student = new Student(data[0], data[1]);
+    public Student createStudent(String[] data, HashMap<String, String> cities) {
+        String city = "город не указан";
+        if (cities.containsKey(data[0])) {
+            city = cities.get(data[0]);
+        }
+        var student = new Student(data[0], data[1], city);
         for (var nameTheme : mapTheme.entrySet()) {
             var themeExercises = new HashMap<String, Integer>();
             var themeHomeworks = new HashMap<String, Integer>();
@@ -101,8 +109,10 @@ public class ParserCSV {
 
     public StudentStorage createStudentStorage() {
         var studentStorage = new StudentStorage();
+        var vk = new ObjectVK();
+        var cities = vk.createMapCity();
         for (var i = 3; i < table.size(); i++) {
-            studentStorage.addStudent(createStudent(table.get(i)));
+            studentStorage.addStudent(createStudent(table.get(i), cities));
         }
         return studentStorage;
     }
