@@ -19,7 +19,7 @@ public class Main {
         parser.createMapSeminar();
         parser.createMapExercisesAndHomeworks();
         var students = parser.createStudentStorage();
-        //students.listStudents();
-        System.out.println(students.getStudent("Глебова Дарья"));
+        students.listStudents();
+        //System.out.println(students.getStudent("Глебова Дарья"));
     }
 }

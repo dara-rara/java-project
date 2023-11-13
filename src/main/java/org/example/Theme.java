@@ -47,7 +47,7 @@ public class Theme {
         var builder = new StringBuilder();
         builder.append(nameTheme + "\n");
         for (var exercise : exercises.entrySet())
-            builder.append(exercise.getKey() + "-" + exercise.getValue() + ";");
+            builder.append(exercise.getKey() + "-" + exercise.getValue() + "; ");
         for (var homework : homeworks.entrySet())
             builder.append(homework.getKey() + "-" + homework.getValue() + "; ");
         builder.append("\nАкт - " + activities + ";");
