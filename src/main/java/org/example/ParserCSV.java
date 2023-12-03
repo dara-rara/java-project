@@ -82,11 +82,29 @@ public class ParserCSV {
     }
 
     public Student createStudent(String[] data, HashMap<String, String> cities) {
-        String city = "город не указан";
+        String city = null;
         if (cities.containsKey(data[0])) {
             city = cities.get(data[0]);
         }
         var student = new Student(data[0], data[1], city);
+        student.setThemes(createThemes(data));
+        return student;
+    }
+
+    public StudentStorage createStudentStorage() {
+        var studentStorage = new StudentStorage();
+        studentStorage.setThemesMax(createThemes(table.get(2)));
+        
+        var vk = new ObjectVK();
+        var cities = vk.createMapCity();
+        for (var i = 3; i < table.size(); i++) {
+            studentStorage.addStudent(createStudent(table.get(i), cities));
+        }
+        return studentStorage;
+    }
+
+    private HashMap<String, Theme> createThemes(String[] data){
+        HashMap<String, Theme> themes = new HashMap<>();
         for (var nameTheme : mapTheme.entrySet()) {
             var themeExercises = new HashMap<String, Integer>();
             var themeHomeworks = new HashMap<String, Integer>();
@@ -102,18 +120,8 @@ public class ParserCSV {
             var theme = new Theme(themeExercises, themeHomeworks,
                     Integer.parseInt(data[nameTheme.getValue()]),
                     Integer.parseInt(data[mapSeminar.get(nameTheme.getKey())]), nameTheme.getKey());
-            student.addTheme(theme);
+            themes.put(theme.getNameTheme(), theme);
         }
-        return student;
-    }
-
-    public StudentStorage createStudentStorage() {
-        var studentStorage = new StudentStorage();
-        var vk = new ObjectVK();
-        var cities = vk.createMapCity();
-        for (var i = 3; i < table.size(); i++) {
-            studentStorage.addStudent(createStudent(table.get(i), cities));
-        }
-        return studentStorage;
+        return themes;
     }
 }

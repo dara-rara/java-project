@@ -6,7 +6,7 @@ public class Student {
     private final String name;
     private final String group;
     private final String city;
-    private final HashMap<String, Theme> themes = new HashMap<>();
+    private HashMap<String, Theme> themes = new HashMap<>();
 
     public Student(String name, String group, String city) {
         this.name = name;
@@ -26,9 +26,8 @@ public class Student {
         return city;
     }
 
-
-    public void addTheme(Theme theme) {
-        themes.put(theme.getNameTheme(), theme);
+    public void setThemes(HashMap<String, Theme> themes) {
+        this.themes = themes;
     }
 
     @Override
