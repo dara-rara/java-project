@@ -15,9 +15,9 @@ public class Main {
         parser.createMapTheme();
         parser.createMapSeminar();
         parser.createMapExercisesAndHomeworks();
-        var students = parser.createStudentStorage();
-//        students.listStudents();
+        var studentStorage = parser.createStudentStorage();
+//        studentStorage.listStudents();
         ManagerDB.Conn();
-        ManagerDB.CreateDB();
+        ManagerDB.CreateDB(studentStorage);
     }
 }

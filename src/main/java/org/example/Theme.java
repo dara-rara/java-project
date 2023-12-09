@@ -22,6 +22,22 @@ public class Theme {
         this.nameTheme = nameTheme;
     }
 
+    public int getActivities() {
+        return activities;
+    }
+
+    public int getSeminars() {
+        return seminars;
+    }
+
+    public HashMap<String, Integer> getExercises() {
+        return exercises;
+    }
+
+    public HashMap<String, Integer> getHomeworks() {
+        return homeworks;
+    }
+
     public int getSumPointsExercises() {
         var sum = 0;
         for (var exercise : exercises.entrySet()) {

@@ -18,12 +18,12 @@ public class ParserCSV {
     private HashMap<String, Integer> mapSeminar;
     private HashMap<String, HashMap<String, Integer>> mapExercises;
     private HashMap<String, HashMap<String, Integer>> mapHomeworks;
-
+    private HashMap<String, Integer> numberThemes;
 
     public void readFile(String file) {
         CSVParser csvParser = new CSVParserBuilder().withSeparator(';').build();
         try (CSVReader reader = new CSVReaderBuilder(
-                new InputStreamReader(new FileInputStream(file),"UTF-8"))
+                new InputStreamReader(new FileInputStream(file), "UTF-8"))
                 .withCSVParser(csvParser)
                 .build()) {
             table = reader.readAll();
@@ -38,9 +38,11 @@ public class ParserCSV {
     public void createMapTheme() {
         var firstLine = table.get(0);
         mapTheme = new HashMap<>();
+        numberThemes = new HashMap<>();
         for (var i = 8; i < firstLine.length; i++) {
             if (firstLine[i] != null && !firstLine[i].equals("")) {
                 mapTheme.put(firstLine[i], i);
+                numberThemes.put(firstLine[i], i);
             }
         }
     }
@@ -81,12 +83,12 @@ public class ParserCSV {
         }
     }
 
-    public Student createStudent(String[] data, HashMap<String, String> cities) {
-        String city = null;
+    public Student createStudent(Integer id, String[] data, HashMap<String, String> cities) {
+        String city = "";
         if (cities.containsKey(data[0])) {
             city = cities.get(data[0]);
         }
-        var student = new Student(data[0], data[1], city);
+        var student = new Student(id, data[0], data[1], city);
         student.setThemes(createThemes(data));
         return student;
     }
@@ -94,16 +96,23 @@ public class ParserCSV {
     public StudentStorage createStudentStorage() {
         var studentStorage = new StudentStorage();
         studentStorage.setThemesMax(createThemes(table.get(2)));
-        
+        studentStorage.setMapActivities(mapTheme);
+        studentStorage.setMapSeminar(mapSeminar);
+        studentStorage.setMapExercises(mapExercises);
+        studentStorage.setMapHomeworks(mapHomeworks);
+
         var vk = new ObjectVK();
-        var cities = vk.createMapCity();
+        vk.createMapCity();
+        var cities = vk.getMapCity();
+        studentStorage.setCitiesNumber(vk.getCitiesNumbers());
+        studentStorage.setThemesNumber(numberThemes);
         for (var i = 3; i < table.size(); i++) {
-            studentStorage.addStudent(createStudent(table.get(i), cities));
+            studentStorage.addStudent(createStudent(i - 3, table.get(i), cities));
         }
         return studentStorage;
     }
 
-    private HashMap<String, Theme> createThemes(String[] data){
+    private HashMap<String, Theme> createThemes(String[] data) {
         HashMap<String, Theme> themes = new HashMap<>();
         for (var nameTheme : mapTheme.entrySet()) {
             var themeExercises = new HashMap<String, Integer>();
