@@ -1,25 +1,39 @@
-package org.example;
+package org.example.db;
 
-import java.sql.*;
+import org.example.models.Student;
+import org.example.models.StudentStorage;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 
 public class ManagerDB {
     private static Connection conn;
-    public static Statement statmt;
+    private static Statement statmt;
+
+    public static Statement getStatmt () {
+        return statmt;
+    }
+    public static Connection getConn () { return conn; }
 
     public static void Conn() throws ClassNotFoundException, SQLException {
         Class.forName("org.sqlite.JDBC");
         conn = DriverManager.getConnection("jdbc:sqlite:table/basicprogramming.db");
         statmt = conn.createStatement();
+    }
 
-        System.out.println("База подключена!");
+    public static void CloseDB() throws ClassNotFoundException, SQLException {
+        statmt.close();
+        conn.close();
     }
 
     public static boolean isConnected() {
         return conn != null && statmt != null;
     }
 
-    public static void CreateDB(StudentStorage storage) throws ClassNotFoundException, SQLException {
+    public static void CreateDB() throws ClassNotFoundException, SQLException {
         statmt.execute("PRAGMA foreign_keys=on");
         CreateTownsTable();
         CreateStudentsTable();
@@ -27,12 +41,12 @@ public class ManagerDB {
         CreateThemesTable();
         CreateTasksTable();
         CreateJournalTable();
-        WriteTowns(storage.getCitiesNumber());
-        WriteStudents(storage.getStudents(), storage.getCitiesNumber());
-        WriteTypeTask(storage.getTypeTask());
-        WriteThemes(storage.getThemesNumber());
-        WriteTasks(storage);
-        WriteJournal(storage);
+        WriteTowns(StudentStorage.getCitiesNumber());
+        WriteStudents(StudentStorage.getStudents(), StudentStorage.getCitiesNumber());
+        WriteTypeTask(StudentStorage.getTypeTask());
+        WriteThemes(StudentStorage.getThemesNumber());
+        WriteTasks();
+        WriteJournal();
     }
 
     private static void CreateTownsTable() throws SQLException {
@@ -51,20 +65,6 @@ public class ManagerDB {
             prStatmt.setString(2, city.getKey());
             prStatmt.executeUpdate();
         }
-//        ResultSet resSet = statmt.executeQuery(
-//                "SELECT * FROM Towns;"
-//        );
-//        if (resSet.isClosed()) {
-//            return;
-//        }
-//
-//        var strB = new StringBuilder();
-//        strB.append("Имя          Фамилия\n-----------------------\n");
-//        while (resSet.next()) {
-//            var firstname = resSet.getInt("town_id");
-//            var lastname = resSet.getString("town_name");
-//            strB.append(String.format("%d  %s\n", firstname, lastname));
-//        }
     }
 
     private static void CreateStudentsTable() throws SQLException {
@@ -139,53 +139,53 @@ public class ManagerDB {
         );
     }
 
-    private static void WriteTasks(StudentStorage storage) throws SQLException {
-        var command =  "INSERT INTO 'Tasks' ('task_id', 'themes_id', 'type_task_id', 'task_name', 'points_max') " +
+    private static void WriteTasks() throws SQLException {
+        var command = "INSERT INTO 'Tasks' ('task_id', 'themes_id', 'type_task_id', 'task_name', 'points_max') " +
                 "VALUES (?, ?, ?, ?, ?); ";
         var prStatmt = conn.prepareStatement(command);
 
-        var tasksAct = storage.getMapActivities();
+        var tasksAct = StudentStorage.getMapActivities();
         for (var task : tasksAct.entrySet()) {
             prStatmt.setInt(1, task.getValue());
-            prStatmt.setInt(2, storage.getThemesNumber().get(task.getKey()));
-            prStatmt.setInt(3, storage.getTypeTask().get("Акт"));
+            prStatmt.setInt(2, StudentStorage.getThemesNumber().get(task.getKey()));
+            prStatmt.setInt(3, StudentStorage.getTypeTask().get("Акт"));
             prStatmt.setString(4, "Акт");
-            prStatmt.setInt(5, storage.getThemesMax().get(task.getKey()).getActivities());
+            prStatmt.setInt(5, StudentStorage.getThemesMax().get(task.getKey()).getActivities());
             prStatmt.executeUpdate();
         }
 
-        var tasksSem = storage.getMapSeminar();
+        var tasksSem = StudentStorage.getMapSeminar();
         for (var task : tasksSem.entrySet()) {
             prStatmt.setInt(1, task.getValue());
-            prStatmt.setInt(2, storage.getThemesNumber().get(task.getKey()));
-            prStatmt.setInt(3, storage.getTypeTask().get("Сем"));
+            prStatmt.setInt(2, StudentStorage.getThemesNumber().get(task.getKey()));
+            prStatmt.setInt(3, StudentStorage.getTypeTask().get("Сем"));
             prStatmt.setString(4, "Сем");
-            prStatmt.setInt(5, storage.getThemesMax().get(task.getKey()).getSeminars());
+            prStatmt.setInt(5, StudentStorage.getThemesMax().get(task.getKey()).getSeminars());
             prStatmt.executeUpdate();
         }
 
-        var tasksEx = storage.getMapExercises();
+        var tasksEx = StudentStorage.getMapExercises();
         for (var theme : tasksEx.entrySet()) {
             for (var task : theme.getValue().entrySet()) {
                 prStatmt.setInt(1, task.getValue());
-                prStatmt.setInt(2, storage.getThemesNumber().get(theme.getKey()));
-                prStatmt.setInt(3, storage.getTypeTask().get("Упр"));
+                prStatmt.setInt(2, StudentStorage.getThemesNumber().get(theme.getKey()));
+                prStatmt.setInt(3, StudentStorage.getTypeTask().get("Упр"));
                 prStatmt.setString(4, task.getKey());
                 prStatmt.setInt(5,
-                        storage.getThemesMax().get(theme.getKey()).getExercises().get(task.getKey()));
+                        StudentStorage.getThemesMax().get(theme.getKey()).getExercises().get(task.getKey()));
                 prStatmt.executeUpdate();
             }
         }
 
-        var tasksHom = storage.getMapHomeworks();
+        var tasksHom = StudentStorage.getMapHomeworks();
         for (var theme : tasksHom.entrySet()) {
             for (var task : theme.getValue().entrySet()) {
                 prStatmt.setInt(1, task.getValue());
-                prStatmt.setInt(2, storage.getThemesNumber().get(theme.getKey()));
-                prStatmt.setInt(3, storage.getTypeTask().get("ДЗ"));
+                prStatmt.setInt(2, StudentStorage.getThemesNumber().get(theme.getKey()));
+                prStatmt.setInt(3, StudentStorage.getTypeTask().get("ДЗ"));
                 prStatmt.setString(4, task.getKey());
                 prStatmt.setInt(5,
-                        storage.getThemesMax().get(theme.getKey()).getHomeworks().get(task.getKey()));
+                        StudentStorage.getThemesMax().get(theme.getKey()).getHomeworks().get(task.getKey()));
                 prStatmt.executeUpdate();
             }
         }
@@ -203,13 +203,13 @@ public class ManagerDB {
         );
     }
 
-    private static void WriteJournal(StudentStorage storage) throws SQLException {
+    private static void WriteJournal() throws SQLException {
         var command = "INSERT INTO 'Journal' ('student_id', 'task_id', 'points') VALUES (?, ?, ?)";
         var prStatmt = conn.prepareStatement(command);
 
-        var students = storage.getStudents();
+        var students = StudentStorage.getStudents();
         for (var student : students.values()) {
-            var tasksAct = storage.getMapActivities();
+            var tasksAct = StudentStorage.getMapActivities();
             for (var task : tasksAct.entrySet()) {
                 prStatmt.setInt(1, student.getStudentID());
                 prStatmt.setInt(2, task.getValue());
@@ -217,7 +217,7 @@ public class ManagerDB {
                 prStatmt.executeUpdate();
             }
 
-            var tasksSem = storage.getMapSeminar();
+            var tasksSem = StudentStorage.getMapSeminar();
             for (var task : tasksSem.entrySet()) {
                 prStatmt.setInt(1, student.getStudentID());
                 prStatmt.setInt(2, task.getValue());
@@ -225,7 +225,7 @@ public class ManagerDB {
                 prStatmt.executeUpdate();
             }
 
-            var tasksEx = storage.getMapExercises();
+            var tasksEx = StudentStorage.getMapExercises();
             for (var theme : tasksEx.entrySet()) {
                 for (var task : theme.getValue().entrySet()) {
                     prStatmt.setInt(1, student.getStudentID());
@@ -235,7 +235,7 @@ public class ManagerDB {
                 }
             }
 
-            var tasksHom = storage.getMapHomeworks();
+            var tasksHom = StudentStorage.getMapHomeworks();
             for (var theme : tasksHom.entrySet()) {
                 for (var task : theme.getValue().entrySet()) {
                     prStatmt.setInt(1, student.getStudentID());

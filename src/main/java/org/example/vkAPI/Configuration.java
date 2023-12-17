@@ -1,4 +1,4 @@
-package org.example;
+package org.example.vkAPI;
 
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;

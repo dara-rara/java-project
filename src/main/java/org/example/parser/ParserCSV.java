@@ -1,9 +1,13 @@
-package org.example;
+package org.example.parser;
 
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import org.example.models.Student;
+import org.example.models.StudentStorage;
+import org.example.models.Theme;
+import org.example.vkAPI.ObjectVK;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,14 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ParserCSV {
-    private List<String[]> table;
-    private HashMap<String, Integer> mapTheme;
-    private HashMap<String, Integer> mapSeminar;
-    private HashMap<String, HashMap<String, Integer>> mapExercises;
-    private HashMap<String, HashMap<String, Integer>> mapHomeworks;
-    private HashMap<String, Integer> numberThemes;
+    private static List<String[]> table;
+    private static HashMap<String, Integer> mapTheme;
+    private static HashMap<String, Integer> mapSeminar;
+    private static HashMap<String, HashMap<String, Integer>> mapExercises;
+    private static HashMap<String, HashMap<String, Integer>> mapHomeworks;
+    private static HashMap<String, Integer> numberThemes;
 
-    public void readFile(String file) {
+    public static void readFile(String file) {
         CSVParser csvParser = new CSVParserBuilder().withSeparator(';').build();
         try (CSVReader reader = new CSVReaderBuilder(
                 new InputStreamReader(new FileInputStream(file), "UTF-8"))
@@ -34,8 +38,7 @@ public class ParserCSV {
         }
     }
 
-
-    public void createMapTheme() {
+    public static void createMapTheme() {
         var firstLine = table.get(0);
         mapTheme = new HashMap<>();
         numberThemes = new HashMap<>();
@@ -47,7 +50,7 @@ public class ParserCSV {
         }
     }
 
-    public void createMapSeminar() {
+    public static void createMapSeminar() {
         var secondLine = table.get(1);
         mapSeminar = new HashMap<>();
         for (var nameTheme : mapTheme.entrySet()) {
@@ -60,7 +63,7 @@ public class ParserCSV {
         }
     }
 
-    public void createMapExercisesAndHomeworks() {
+    public static void createMapExercisesAndHomeworks() {
         mapExercises = new HashMap<>();
         mapHomeworks = new HashMap<>();
         var secondLine = table.get(1);
@@ -83,7 +86,7 @@ public class ParserCSV {
         }
     }
 
-    public Student createStudent(Integer id, String[] data, HashMap<String, String> cities) {
+    public static Student createStudent(Integer id, String[] data, HashMap<String, String> cities) {
         String city = "";
         if (cities.containsKey(data[0])) {
             city = cities.get(data[0]);
@@ -93,7 +96,7 @@ public class ParserCSV {
         return student;
     }
 
-    public StudentStorage createStudentStorage() {
+    public static StudentStorage createStudentStorage() {
         var studentStorage = new StudentStorage();
         studentStorage.setThemesMax(createThemes(table.get(2)));
         studentStorage.setMapActivities(mapTheme);
@@ -102,9 +105,9 @@ public class ParserCSV {
         studentStorage.setMapHomeworks(mapHomeworks);
 
         var vk = new ObjectVK();
-        vk.createMapCity();
-        var cities = vk.getMapCity();
-        studentStorage.setCitiesNumber(vk.getCitiesNumbers());
+        ObjectVK.createMapCity();
+        var cities = ObjectVK.getMapCity();
+        studentStorage.setCitiesNumber(ObjectVK.getCitiesNumbers());
         studentStorage.setThemesNumber(numberThemes);
         for (var i = 3; i < table.size(); i++) {
             studentStorage.addStudent(createStudent(i - 3, table.get(i), cities));
@@ -112,7 +115,7 @@ public class ParserCSV {
         return studentStorage;
     }
 
-    private HashMap<String, Theme> createThemes(String[] data) {
+    private static HashMap<String, Theme> createThemes(String[] data) {
         HashMap<String, Theme> themes = new HashMap<>();
         for (var nameTheme : mapTheme.entrySet()) {
             var themeExercises = new HashMap<String, Integer>();
